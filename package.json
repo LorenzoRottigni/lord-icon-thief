@@ -1,0 +1,20 @@
+{
+  "name": "lord-icon-thief",
+  "scripts": {
+    "start": "ts-node index.ts"
+  },
+  "version": "1.0.0",
+  "description": "Script to generate lottie json file on filesystem from a list of lord-icon url source",
+  "main": "index.js",
+  "repository": "https://github.com/LorenzoRottigni/lord-icon-thief.git",
+  "author": "LorenzoRottigni <lorenzo@rottigni.net>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.11"
+  }
+}
