@@ -1,40 +1,58 @@
 import * as fs from 'fs'
 import sources from './source.json'
+import superagent from 'superagent'
 
 let counter = 0
 
 async function fetchSource(data: { [x: string]: string }, source: string) {
   for (const name in data) {
     if (Object.prototype.hasOwnProperty.call(data, name)) {
-      counter ++
-      const url = data[name as keyof typeof data];
-      const res = await fetch(
-        url,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-        }
-      )
-      const body = {
-        payload: JSON.stringify(await res.json()),
-        path: `/lord-icon/${source}/`,
-        filename: `lord_icon_${name}.json`
-      }
-      console.dir(body)
-      const path = await fetch(
-        'https://storage.rottigni.tech/resource/json',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(body),
-        },
-      )
+      try {
+        const url = data[name as keyof typeof data];
+        counter ++
 
-      console.info(`Emitted: https://storage.rottigni.tech/${await path.text()}`)
+        const json: string = await new Promise((resolve, reject) => {
+          const onResponse = (err: any, res: any) => {
+            if (err)
+              return reject(err)
+
+            resolve(res.text)
+          }
+          superagent
+            .get(url)
+            .set('Content-Type', 'application/json')
+            .set('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13')
+            .end(onResponse)
+        })
+
+        console.dir(json)
+
+        if (json) {
+          const path = await new Promise((resolve, reject) => {
+            const onResponse = (err: any, res: any) => {
+              if (err)
+                return reject(err)
+
+              resolve(res.text)
+            }
+            superagent
+              .post('https://storage.rottigni.tech/resource/json')
+              .set('Content-Type', 'application/json')
+              .set('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13')
+              .field('payload', json)
+              .field('path', `/lord-icon/${source}/`)
+              .field('filename', `lord_icon_${name}.json`)
+              .end(onResponse)
+          })
+
+          console.info(`Emitted: https://storage.rottigni.tech/${path}`)
+        } else {
+          console.warn('Failed to fetch json.')
+        }
+      } catch (err) {
+        console.error(err)
+      }
+
       /*await fs.writeFile(
         `./data/${source}/lord_icon_${name}.json`,
         JSON.stringify(await res.json()),

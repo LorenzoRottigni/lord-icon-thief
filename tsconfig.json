@@ -6,7 +6,10 @@
       "esModuleInterop": true,
       "resolveJsonModule": true,
       "allowJs": true,
-      "checkJs": false
+      "checkJs": false,
+      "types": [
+        "@types/superagent"
+      ]
     }
   }
   
